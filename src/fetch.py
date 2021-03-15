@@ -67,5 +67,3 @@ def fetch_metadata_from_soup(soup) -> dict:
                     'to': end
                     }
             }
-
-fetch_all_urls(1)
