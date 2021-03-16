@@ -113,7 +113,7 @@ def write_urls(url_file, base_list_url, end_page) -> list:
                         continue
         else:
             print("[*] error: unable to fetch urls from ", source.url)
-            curr_page += 1
+        curr_page += 1
 
 
 def write_metadata(url_file, file_csv, start_url_index, end_url_index):
