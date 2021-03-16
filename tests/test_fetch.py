@@ -3,7 +3,7 @@ sys.path.append('../src/')
 
 import requests
 from bs4 import BeautifulSoup
-from fetch import fetch_metadata_from_soup, fetch_all_urls
+from fetch import fetch_metadata_from_soup, fetch_urls_from_page
 
 
 comic_url = sys.argv[1]
@@ -17,8 +17,7 @@ except:
     print('[*] failed: fetch_metadata_from_soup')
 
 try:
-    fetch_all_urls(1)
-    print('[*] success: fetch_all_urls')
+    fetch_urls_from_page(1)
+    print('[*] success: fetch_urls_from_page')
 except:
-    print('[*] failed: fetch_all_urls')
-
+    print('[*] failed: fetch_urls_from_page')

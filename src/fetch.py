@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 
 
 start_url = 'https://readcomiconline.to/ComicList'
-max_page_count = 10
 
 
 def handler(soup) -> list:
@@ -15,10 +14,10 @@ def handler(soup) -> list:
         yield href
 
 
-def fetch_all_urls(max_page) -> list:
+def fetch_urls_from_page(till_max_page) -> list:
     curr_page = 1
     urls = []
-    while curr_page <= max_page:
+    while curr_page <= till_max_page:
         payload = {
             'page': curr_page
         }

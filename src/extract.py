@@ -1,8 +1,9 @@
-from fetch import fetch_metadata_from_soup, fetch_all_urls
 import requests
-from bs4 import BeautifulSoup
 import threading
+from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+
+from src.fetch import fetch_metadata_from_soup, fetch_urls_from_page
 
 base_url = 'https://readcomiconline.to'
 list_of_genres = [
@@ -93,10 +94,10 @@ def url_handler(url, file_csv):
 
 
 def write_urls_to_file(url_file, total_page_count):
-    urls = fetch_all_urls(total_page_count)
-    with open(url_file,'w') as f:
-        print(f'[$] Writing urls to {url_file}.....')
-        for i in urls: 
+    urls = fetch_urls_from_page(total_page_count)
+    with open(url_file, 'a') as f:
+        print(f'[*] writing urls to {url_file}')
+        for i in urls:
             f.write(i + '\n')
     print(f'[*] success: wrote {len(urls)} to {url_file}')
 
