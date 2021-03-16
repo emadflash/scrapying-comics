@@ -11,7 +11,7 @@ def fetch_urls_from_page(soup) -> list:
         yield href
 
 
-def get_start_end_date(publication_date) -> tuple[str, str]:
+def get_start_end_date(publication_date) -> tuple:
     if publication_date.find('-') > 0:
         start, end = publication_date.split(' - ')
     else:
