@@ -86,29 +86,43 @@ def generate_csv_style(meta):
 
 def url_handler(url, file_csv):
     req = requests.get(url)
-    print(f'[*] fetching meta data from {base_url + url}')
+    print(f'[*] extracting metadata from {base_url + url}')
     soup = BeautifulSoup(req.text, 'html.parser')
     meta = fetch_metadata_from_soup(soup=soup)
     with open(file_csv, 'a') as f:
         f.write(generate_csv_style(meta) + '\n')
 
 
-def write_urls_to_file(url_file, total_page_count):
-    urls = fetch_urls_from_page(total_page_count)
-    with open(url_file, 'a') as f:
-        print(f'[*] writing urls to {url_file}')
-        for i in urls:
-            f.write(i + '\n')
-    print(f'[*] success: wrote {len(urls)} to {url_file}')
+def write_urls(url_file, base_list_url, end_page) -> list:
+    curr_page = 1
+    urls = []
+    while curr_page <= end_page:
+        payload = {
+            'page': curr_page
+        }
+        source = requests.get(base_list_url, params=payload)
+        if source.ok:
+            print("[*] fetching urls; ", source.url)
+            soup = BeautifulSoup(source.text, 'html.parser')
+            for i in fetch_urls_from_page(soup=soup):
+                with open(url_file, 'a') as f:
+                    if i not in urls:
+                        f.write(i + '\n')
+                        urls.append(i)
+                    else:
+                        continue
+        else:
+            print("[*] error: unable to fetch urls from ", source.url)
+            curr_page += 1
 
 
-def write_metadata_to_file(url_file, file_csv, from_index, to_index):
+def write_metadata(url_file, file_csv, start_url_index, end_url_index):
     with open(url_file, 'r') as f:
         unfiltered_urls = f.readlines()
         urls = list(map(lambda x: x.strip('\n'), unfiltered_urls))
         threads = []
         # TODO executor.map(url_handler,urls)
-        for url_index, url in enumerate(urls[from_index: to_index]):
+        for url_index, url in enumerate(urls[start_url_index: end_url_index]):
             try:
                 url = urljoin(base_url, url)
                 thread = threading.Thread(target=url_handler, args=[url, file_csv])

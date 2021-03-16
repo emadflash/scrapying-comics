@@ -3,31 +3,12 @@ import requests
 from bs4 import BeautifulSoup
 
 
-start_url = 'https://readcomiconline.to/ComicList'
-
-
-def handler(soup) -> list:
+def fetch_urls_from_page(soup) -> list:
     tr = soup.findAll('div', {'class': 'col cover'})
     for i in tr:
         a = i.find('a')
         href = a['href']
         yield href
-
-
-def fetch_urls_from_page(till_max_page) -> list:
-    curr_page = 1
-    urls = []
-    while curr_page <= till_max_page:
-        payload = {
-            'page': curr_page
-        }
-        source = requests.get(start_url, params=payload)
-        if source.ok:
-            soup = BeautifulSoup(source.text, 'html.parser')
-            for i in handler(soup=soup):
-                urls.append(i)
-        curr_page += 1
-    return urls
 
 
 def get_start_end_date(publication_date) -> tuple[str, str]:
