@@ -3,8 +3,7 @@ import sys
 import time
 import argparse
 import logging
-from src.extract import write_urls
-from src.extract import write_metadata
+from src.extract import write_urls, generate_csv_one_go
 
 max_page_count = 446
 base_comic_list_url = "https://readcomiconline.to/ComicList"
@@ -18,6 +17,7 @@ parser = argparse.ArgumentParser(description="generate url/csv files of content 
 
 parser.add_argument('--extract-urls', action='store_true', help='generate file with all comic urls')
 parser.add_argument('--generate-csv', action='store_true', help='extract metadata in csv format')
+parser.add_argument('--one-go', action='store_true', help='extract metadata while extract urls')
 parser.add_argument('--url-file',  type=str)
 parser.add_argument('--csv-file',  type=str)
 
@@ -30,13 +30,6 @@ def set_file(File, default_file):
         return default_file
     else:
         return file_status
-
-
-def count_unique_urls(File):
-    with open(File) as f:
-        urls = f.readlines()
-        unique_urls = set(urls)
-    return len(unique_urls)
 
 
 url_file = set_file('url_file', default_url_file)
@@ -54,14 +47,8 @@ else:
             print("[*] stopped fetching urls")
         except:
             print("[*] error: oops, something went wrong")
-
-    elif args.generate_csv:
-        pass
-        # TODO make this work
-        # begin = 1
-        # end = count_unique_urls(url_file)
-        # while begin != end:
-            # write_metadata(url_file, csv_file, begin, end)
-            # begin, end = end, end + 500
-            # print('[*] sleep request 2min')
-            # time.sleep(sleep_request*60)
+    elif args.one_go:
+        try:
+            generate_csv_one_go(csv_file, base_comic_list_url, 0, max_page_count)
+        except:
+            print("[*] error: oops, something went wrong")

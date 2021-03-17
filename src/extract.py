@@ -1,9 +1,12 @@
+import logging
 import requests
 import threading
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 from src.fetch import fetch_metadata_from_soup, fetch_urls_from_page
+
+logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 base_url = 'https://readcomiconline.to'
 list_of_genres = [
@@ -86,11 +89,15 @@ def generate_csv_style(meta):
 
 def url_handler(url, file_csv):
     req = requests.get(url)
-    print(f'[*] extracting metadata from {base_url + url}')
+    print(f'[*] extracting metadata from {url}')
     soup = BeautifulSoup(req.text, 'html.parser')
-    meta = fetch_metadata_from_soup(soup=soup)
-    with open(file_csv, 'a') as f:
-        f.write(generate_csv_style(meta) + '\n')
+    try:
+        meta = fetch_metadata_from_soup(soup=soup)
+    except Exception as exception:
+        logging.info(f"[failed_to_parse] {url}")
+    else:
+        with open(file_csv, 'a') as f:
+            f.write(generate_csv_style(meta) + '\n')
 
 
 def write_urls(url_file, base_list_url, end_page) -> list:
@@ -134,3 +141,37 @@ def write_metadata(url_file, file_csv, start_url_index, end_url_index):
 
         for thread in threads:
             thread.join()
+
+
+def generate_csv_one_go(file_csv, base_list_url, start_page, end_page):
+    curr_page = start_page
+    urls = []
+    threads = []
+    while curr_page <= end_page:
+        payload = {
+            'page': curr_page
+        }
+        source = requests.get(base_list_url, params=payload)
+        if source.ok:
+            print("[*] fetching urls; ", source.url)
+            soup = BeautifulSoup(source.text, 'html.parser')
+            for url in fetch_urls_from_page(soup=soup):
+                if url not in urls:
+                    url = urljoin(base_list_url, url)
+                    thread = threading.Thread(target=url_handler, args=[url, file_csv])
+                    threads.append(thread)
+                    urls.append(url)
+                else:
+                    continue
+
+            for thread in threads:
+                thread.start()
+
+            for thread in threads:
+                thread.join()
+
+            threads.clear()
+        else:
+            print("[*] error: unable to fetch urls from ", source.url)
+            logging.info("[failed_to_extract_url]", source.url)
+        curr_page += 1
