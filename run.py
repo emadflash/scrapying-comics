@@ -16,7 +16,6 @@ sleep_request = 3       # minutes
 parser = argparse.ArgumentParser(description="generate url/csv files of content from readcomiconline.to")
 
 parser.add_argument('--extract-urls', action='store_true', help='generate file with all comic urls')
-parser.add_argument('--generate-csv', action='store_true', help='extract metadata in csv format')
 parser.add_argument('--one-go', action='store_true', help='extract metadata while extract urls')
 parser.add_argument('--url-file',  type=str)
 parser.add_argument('--csv-file',  type=str)
